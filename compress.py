@@ -1,11 +1,7 @@
-import time
-
+last_name = 0
 closing_char = {
     "]":"[", "}":"{"
 }
-
-def new_name():
-    return "v" + str(int(time.time()))
 
 def objects(text):
     stack = []
@@ -21,7 +17,10 @@ def objects(text):
             continue
 
 def replace_and_append(text, obj):
-    var_name = new_name()
+    global last_name
+
+    var_name = "obj" + str(last_name)
+    last_name += 1
     return "var %s = %s;\n%s" % \
         (var_name, obj, text.replace(obj, var_name))
 
@@ -31,4 +30,5 @@ def compress(text):
                   text)
 
 if __name__ == '__main__':
-    print commpress("[{10}, [11], {10}]"))
+    import sys
+    print compress(sys.stdin.read())
