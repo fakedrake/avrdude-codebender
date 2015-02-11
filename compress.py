@@ -1,3 +1,17 @@
+"""
+Compress a javascript object to reuse common objects in the tree.
+
+    cat memory_unoptimized.js | python compress.py > optimized.js
+
+Check that the result is valid with
+
+    node optimized.js
+
+Avrdude creates such a js file from it's configuration with:
+
+    ./avrdude -p \? -C avrdude.conf -v |& awk 'BEGIN {p = 0} /BEGIN PARTS/{p=1} (p>0) {print}' > memory_unoptimized.js
+"""
+
 import re
 from collections import defaultdict, Counter
 

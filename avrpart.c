@@ -374,12 +374,32 @@ AVRMEM * avr_locate_mem(AVRPART * p, char * desc)
 }
 
 
-void avr_mem_display(const char * prefix, FILE * f, AVRMEM * m, int type,
-                     int verbose)
+void show_op_array(FILE * f, const char * prefix, OPCODE ** oa)
 {
     int i, j;
     char * optr;
 
+    for (i=0; i<AVR_OP_MAX; i++) {
+        if (oa[i]) {
+            optr = avr_op_str(i);
+            fprintf(f, "%s%s:[\n", prefix, optr);
+            for (j=31; j>=0; j--) {
+                fprintf(f, "%s{\n",prefix);
+                fprintf(f, "%s\top: \"%s\",\n", prefix, optr);
+                fprintf(f, "%s\tinstBit: %8d,\n", prefix, j);
+                fprintf(f, "%s\tbitType: \"%s\",\n", prefix, bittype(oa[i]->bit[j].type));
+                fprintf(f, "%s\tbitNo: %5d,\n", prefix,oa[i]->bit[j].bitno);
+                fprintf(f, "%s\tvalue: %5d\n", prefix, oa[i]->bit[j].value);
+                fprintf(f, "%s},\n", prefix);
+            }
+            fprintf(f, "%s],\n", prefix);
+        }
+    }
+}
+
+void avr_mem_display(const char * prefix, FILE * f, AVRMEM * m, int type,
+                     int verbose)
+{
     if (m == NULL) {
         /* fprintf(f, */
         /*         "%s                       Block Poll               Page                       Polled\n" */
@@ -400,27 +420,13 @@ void avr_mem_display(const char * prefix, FILE * f, AVRMEM * m, int type,
         if ( m->min_write_delay) fprintf(f, "%smin_write_delay: %5d,\n", prefix, m->min_write_delay);
         if ( m->max_write_delay) fprintf(f, "%smax_write_delay: %5d,\n", prefix, m->max_write_delay);
         fprintf(f, "%sreadback: [0x%02x, 0x%02x],\n", prefix, m->readback[0], m->readback[1]);
-        fprintf(f, "%smemops: {\n", prefix);
         /* fprintf(stderr, */
         /*         "%s  Memory Ops:\n" */
         /*         "%s    Oeration     Inst Bit  Bit Type  Bitno  Value\n" */
         /*         "%s    -----------  --------  --------  -----  -----\n", */
         /*         prefix, prefix, prefix); */
-        for (i=0; i<AVR_OP_MAX; i++) {
-            if (m->op[i]) {
-                optr = avr_op_str(i);
-                fprintf(f, "%s%s:[\n", prefix, optr);
-                for (j=31; j>=0; j--) {
-                    fprintf(f, "%s{op: \"%s\",\n", prefix, optr);
-                    fprintf(f, "%s\tinstBit: %8d,\n", prefix, j);
-                    fprintf(f, "%s\tbitType: \"%s\",\n", prefix, bittype(m->op[i]->bit[j].type));
-                    fprintf(f, "%s\tbitNo: %5d,\n", prefix,m->op[i]->bit[j].bitno);
-                    fprintf(f, "%s\tvalue: %5d\n", prefix, m->op[i]->bit[j].value);
-                    fprintf(f, "%s},\n", prefix);
-                }
-                fprintf(f, "%s],\n", prefix);
-            }
-        }
+        fprintf(f, "%smemops: {\n", prefix);
+        show_op_array(f, prefix, m->op);
         fprintf(f, "%s}\n", prefix);
         fprintf(f, "%s},\n", prefix);
     }
@@ -494,11 +500,11 @@ void avr_free_part(AVRPART * d)
     d->mem = NULL;
     for(i=0;i<sizeof(d->op)/sizeof(d->op[0]);i++)
     {
-    	if (d->op[i] != NULL)
-    	{
+        if (d->op[i] != NULL)
+        {
             avr_free_opcode(d->op[i]);
             d->op[i] = NULL;
-    	}
+        }
     }
     free(d);
 }
@@ -615,6 +621,11 @@ void avr_display(FILE * f, AVRPART * p, const char * prefix, int verbose)
     if ( p->bytedelay) fprintf(f, "%sbyteDelay : %d,\n", prefix, p->bytedelay);
     if ( p->pollindex) fprintf(f, "%spollIndex : %d,\n", prefix, p->pollindex);
     if ( p->pollvalue) fprintf(f, "%spollValue : 0x%02x,\n", prefix, p->pollvalue);
+    if ( p->op) {
+        fprintf(f, "%sops : {\n", prefix);
+        show_op_array(f, prefix, p->op);
+        fprintf(f, "%s},\n", prefix);
+    }
     fprintf(f, "%smemory :{\n", prefix);
     px = prefix;
     i = strlen(prefix) + 5;
