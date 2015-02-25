@@ -607,6 +607,7 @@ void avr_display(FILE * f, AVRPART * p, const char * prefix, int verbose)
     fprintf(f,"{\n");
     fprintf(f, "%sAVRPart: \"%s\",\n", prefix, p->desc);           /* AvrPart */
     if ( p->chip_erase_delay) if ( p->chip_erase_delay) fprintf(f, "%schipEraseDelay : %d,\n", prefix, p->chip_erase_delay);
+    fprintf(f, "%stk500_devcode : 0x%02x,\n", prefix, p->stk500_devcode);
     if ( p->pagel) fprintf(f, "%spagel : 0x%02x,\n", prefix, p->pagel);
     if ( p->bs2) fprintf(f, "%sbs2 : 0x%02x,\n", prefix, p->bs2);
     fprintf(f, "%sresetDisposition : \"%s\",\n", prefix, reset_disp_str(p->reset_disposition));
