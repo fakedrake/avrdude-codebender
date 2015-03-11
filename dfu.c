@@ -36,13 +36,13 @@
 
 #ifndef HAVE_LIBUSB
 
-int dfu_open(struct dfu_dev *dfu, char *port_name) {
+struct dfu_dev * dfu_open(char *port_name) {
   fprintf(stderr, "%s: Error: No USB support in this compile of avrdude\n",
     progname);
   return -1;
 }
 
-int dfu_init(struct dfu_dev *dfu, unsigned short usb_pid) {
+int dfu_init(struct dfu_dev *dfu, unsigned short vid, unsigned short pid) {
   return -1;
 }
 
@@ -59,7 +59,7 @@ int dfu_clrstatus(struct dfu_dev *dfu) {
   return -1;
 }
 
-int dfu_download(struct dfu_dev *dfu, void * ptr, int size) {
+int dfu_dnload(struct dfu_dev *dfu, void * ptr, int size) {
   return -1;
 }
 
@@ -69,72 +69,72 @@ int dfu_upload(struct dfu_dev *dfu, void * ptr, int size) {
 
 #else
 
-/* If we DO have LibUSB, we can define the real functions. */
+/* if we do have libusb, we can define the real functions. */
 
-/* DFU data structures and constants.
+/* dfu data structures and constants.
  */
 
-#define DFU_TIMEOUT 200 /* ms */
+#define dfu_timeout 200 /* ms */
 
-#define DFU_DNLOAD 1
-#define DFU_UPLOAD 2
-#define DFU_GETSTATUS 3
-#define DFU_CLRSTATUS 4
-#define DFU_GETSTATE 5          /* FLIPv1 only; not used */
-#define DFU_ABORT 6             /* FLIPv1 only */
+#define dfu_dnload 1
+#define dfu_upload 2
+#define dfu_getstatus 3
+#define dfu_clrstatus 4
+#define dfu_getstate 5          /* flipv1 only; not used */
+#define dfu_abort 6             /* flipv1 only */
 
-/* Block counter global variable. Incremented each time a DFU_DNLOAD command
+/* block counter global variable. incremented each time a dfu_dnload command
  * is sent to the device.
  */
 
-static uint16_t wIndex = 0;
+static uint16_t windex = 0;
 
-/* INTERNAL FUNCTION PROTOTYPES
+/* internal function prototypes
  */
 
 static char * get_usb_string(usb_dev_handle * dev_handle, int index);
 
-/* EXPORTED FUNCTION DEFINITIONS
+/* exported function definitions
  */
 
 struct dfu_dev * dfu_open(char *port_spec)
 {
   struct dfu_dev *dfu;
-  char *bus_name = NULL;
-  char *dev_name = NULL;
+  char *bus_name = null;
+  char *dev_name = null;
 
-  /* The following USB device spec parsing code was copied from usbtiny.c. The
-   * expected format is "usb:BUS:DEV" where BUS and DEV are the bus and device
-   * names. We stash these away in the dfu_dev structure for the dfu_init()
+  /* the following usb device spec parsing code was copied from usbtiny.c. the
+   * expected format is "usb:bus:dev" where bus and dev are the bus and device
+   * names. we stash these away in the dfu_dev structure for the dfu_init()
    * function, where we actually open the device.
    */
 
   if (strncmp(port_spec, "usb", 3) != 0) {
-    fprintf(stderr, "%s: Error: "
-      "Invalid port specification \"%s\" for USB device\n",
+    fprintf(stderr, "%s: error: "
+      "invalid port specification \"%s\" for usb device\n",
       progname, port_spec);
-    return NULL;
+    return null;
   }
 
   if(':' == port_spec[3]) {
       bus_name = strdup(port_spec + 3 + 1);
-      if (bus_name == NULL) {
-        fprintf(stderr, "%s: Out of memory in strdup\n", progname);
-        return NULL;
+      if (bus_name == null) {
+        fprintf(stderr, "%s: out of memory in strdup\n", progname);
+        return null;
       }
 
       dev_name = strchr(bus_name, ':');
-      if(NULL != dev_name)
+      if(null != dev_name)
         *dev_name++ = '\0';
   }
 
-  /* Allocate the dfu_dev structure and save the bus_name and dev_name
+  /* allocate the dfu_dev structure and save the bus_name and dev_name
    * strings for use in dfu_initialize().
    */
 
   dfu = calloc(1, sizeof(struct dfu_dev));
 
-  if (dfu == NULL)
+  if (dfu == null)
   {
     fprintf(stderr, "%s: out of memory\n", progname);
     return 0;
@@ -142,9 +142,9 @@ struct dfu_dev * dfu_open(char *port_spec)
 
   dfu->bus_name = bus_name;
   dfu->dev_name = dev_name;
-  dfu->timeout = DFU_TIMEOUT;
+  dfu->timeout = dfu_timeout;
 
-  /* LibUSB initialization. */
+  /* libusb initialization. */
 
   usb_init();
   usb_find_busses();
@@ -520,4 +520,3 @@ const char * dfu_state_str(int bState)
     default: return "Unknown";
   }
 }
-
