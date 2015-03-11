@@ -31,6 +31,8 @@
 #include <stdint.h>
 #elif HAVE_INTTYPES_H
 #include <inttypes.h>
+#else
+typedef unsigned long uint32_t;
 #endif
 
 #include "flip2.h"
@@ -150,6 +152,8 @@ static int flip2_read_sig_bytes(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem);
 static void flip2_setup(PROGRAMMER * pgm);
 static void flip2_teardown(PROGRAMMER * pgm);
 
+#ifdef HAVE_LIBUSB
+
 /* INTERNAL PROGRAMMER FUNCTION PROTOTYPES */
 
 static void flip2_show_info(struct flip2 *flip2);
@@ -170,6 +174,8 @@ static int flip2_write_max1k(struct dfu_dev *dfu,
 static const char * flip2_status_str(const struct dfu_status *status);
 static const char * flip2_mem_unit_str(enum flip2_mem_unit mem_unit);
 static enum flip2_mem_unit flip2_mem_unit(const char *name);
+
+#endif  /* HAVE_LIBUSB */
 
 /* THE INITPGM FUNCTION DEFINITIONS */
 
@@ -195,6 +201,59 @@ void flip2_initpgm(PROGRAMMER *pgm)
   pgm->teardown         = flip2_teardown;
 }
 
+#ifndef HAVE_LIBUSB
+
+static int flip2_open(PROGRAMMER *pgm, char *port_spec)
+{ return -1; }
+
+static int flip2_initialize(PROGRAMMER* pgm, AVRPART *part)
+{ return -1; }
+
+static void flip2_close(PROGRAMMER* pgm)
+{ }
+
+static void flip2_enable(PROGRAMMER* pgm)
+{ }
+
+static void flip2_disable(PROGRAMMER* pgm)
+{ }
+
+static void flip2_display(PROGRAMMER* pgm, const char *prefix)
+{ }
+
+static int flip2_program_enable(PROGRAMMER* pgm, AVRPART *part)
+{ return -1; }
+
+static int flip2_chip_erase(PROGRAMMER* pgm, AVRPART *part)
+{ return -1; }
+
+static int flip2_read_byte(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem,
+  unsigned long addr, unsigned char *value)
+{ return -1; }
+
+static int flip2_write_byte(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem,
+  unsigned long addr, unsigned char value)
+{ return -1; }
+
+static int flip2_paged_load(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem,
+  unsigned int page_size, unsigned int addr, unsigned int n_bytes)
+{ return -1; }
+
+static int flip2_paged_write(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem,
+  unsigned int page_size, unsigned int addr, unsigned int n_bytes)
+{ return -1; }
+
+static int flip2_read_sig_bytes(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem)
+{ return -1; }
+
+static void flip2_setup(PROGRAMMER * pgm)
+{ }
+
+static void flip2_teardown(PROGRAMMER * pgm)
+{ }
+
+
+#else
 /* EXPORTED PROGRAMMER FUNCTION DEFINITIONS */
 
 int flip2_open(PROGRAMMER *pgm, char *port_spec)
@@ -922,3 +981,4 @@ enum flip2_mem_unit flip2_mem_unit(const char *name) {
     return FLIP2_MEM_UNIT_SIGNATURE;
   return FLIP2_MEM_UNIT_UNKNOWN;
 }
+#endif  /* HAVE_LIBUSB */
