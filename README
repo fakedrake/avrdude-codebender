@@ -1,3 +1,14 @@
+FakeDrake's comments
+====================
+
+To build for windows after you install the mingw tools you need to set
+both the target **and** the host at configuration stage:
+
+    ./configure --target=i686-w64-mingw32 --host=i686-w64-mingw32 && make
+
+Oringinal README
+================
+
 See the documentation file for the details.
 
 The latest version of AVRDUDE is always available here:
