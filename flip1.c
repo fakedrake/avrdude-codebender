@@ -34,6 +34,8 @@
 #include <stdint.h>
 #elif HAVE_INTTYPES_H
 #include <inttypes.h>
+#else
+typedef unsigned long uint32_t;
 #endif
 
 #include "flip1.h"
@@ -200,6 +202,56 @@ void flip1_initpgm(PROGRAMMER *pgm)
   pgm->setup            = flip1_setup;
   pgm->teardown         = flip1_teardown;
 }
+
+#ifndef HAVE_LIBUSB
+
+/* Emopty definitions. */
+static int flip1_initialize(PROGRAMMER* pgm, AVRPART *part)
+{ return -1; }
+
+static void flip1_enable(PROGRAMMER* pgm)
+{}
+
+static void flip1_disable(PROGRAMMER* pgm)
+{}
+
+static void flip1_display(PROGRAMMER* pgm, const char *prefix)
+{}
+
+static int flip1_program_enable(PROGRAMMER* pgm, AVRPART *part)
+{ return -1; }
+
+static int flip1_chip_erase(PROGRAMMER* pgm, AVRPART *part)
+{ return -1; }
+
+static int flip1_open(PROGRAMMER *pgm, char *port_spec)
+{ return -1; }
+
+static void flip1_close(PROGRAMMER* pgm)
+{}
+
+static int flip1_paged_load(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem, unsigned int page_size, unsigned int addr, unsigned int n_bytes)
+{ return -1;}
+static int flip1_paged_write(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem,
+                             unsigned int page_size, unsigned int addr, unsigned int n_bytes)
+{ return -1; }
+
+static int flip1_read_byte(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem, unsigned long addr, unsigned char *value)
+{ return -1; }
+
+static int flip1_write_byte(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem, unsigned long addr, unsigned char value)
+{ return -1; }
+
+static int flip1_read_sig_bytes(PROGRAMMER* pgm, AVRPART *part, AVRMEM *mem)
+{ return -1; }
+
+static void flip1_setup(PROGRAMMER * pgm)
+{}
+
+static void flip1_teardown(PROGRAMMER * pgm)
+{}
+
+#else
 
 /* EXPORTED PROGRAMMER FUNCTION DEFINITIONS */
 
@@ -876,3 +928,4 @@ enum flip1_mem_unit flip1_mem_unit(const char *name) {
     return FLIP1_MEM_UNIT_EEPROM;
   return FLIP1_MEM_UNIT_UNKNOWN;
 }
+#endif  /* ndef HAVE_LIBUSB */
