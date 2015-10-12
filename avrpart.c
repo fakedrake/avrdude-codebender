@@ -613,7 +613,7 @@ void avr_display(FILE * f, AVRPART * p, const char * prefix, int verbose)
     fprintf(f, "%sresetDisposition : \"%s\",\n", prefix, reset_disp_str(p->reset_disposition));
     fprintf(f, "%sretryPulse : \"%s\",\n", prefix, avr_pin_name(p->retry_pulse));
     /* Signature */
-    fprintf(f, "%ssignature: [");
+    fprintf(f, "%ssignature: [", prefix);
     int js; for (js = 0; js < 3; js++) fprintf(f, "0x%x,", p->signature[js]);
     fprintf(f, "],\n");
 
@@ -623,6 +623,17 @@ void avr_display(FILE * f, AVRPART * p, const char * prefix, int verbose)
         (f, "%sserialProgramMode : %s,\n", prefix, (p->flags & AVRPART_SERIALOK) ? "true" : "false");
     fprintf(f, "%sparallelProgramMode : %s,\n", prefix, (p->flags & AVRPART_PARALLELOK)?"true":"false" );
     fprintf(f, "%spseudoparallelProgramMode : %s,\n", prefix, (p->flags & AVRPART_PSEUDOPARALLEL)?"true":"false" );
+    fprintf(f, "%shasTpi: %s,\n", prefix, (p->flags & AVRPART_HAS_TPI) ? "true":"false" );
+    fprintf(f, "%sisAvr32: %s,\n", prefix, (p->flags & AVRPART_AVR32) ? "true":"false" );
+    fprintf(f, "%shasDebugWire: %s,\n", prefix, (p->flags & AVRPART_HAS_DW) ? "true":"false" );
+    fprintf(f, "%shasWriteOperation: %s,\n", prefix, (p->flags & AVRPART_WRITE) ? "true":"false" );
+    fprintf(f, "%shasJtag: %s,\n", prefix, (p->flags & AVRPART_HAS_JTAG) ? "true":"false" );
+    fprintf(f, "%shasPdi: %s,\n", prefix, (p->flags & AVRPART_HAS_PDI) ? "true":"false" );
+    fprintf(f, "%shasEnablePageProgramming: %s,\n", prefix, (p->flags & AVRPART_ENABLEPAGEPROGRAMMING) ? "true":"false" );
+    fprintf(f, "%sallowFullPageBitstream: %s,\n", prefix, (p->flags & AVRPART_ALLOWFULLPAGEBITSTREAM) ? "true":"false" );
+    fprintf(f, "%sallowInitSmc: %s,\n", prefix, (p->flags & AVRPART_INIT_SMC) ? "true":"false" );
+    fprintf(f, "%sisAT90S1200: %s,\n", prefix, (p->flags & AVRPART_IS_AT90S1200) ? "true":"false" );
+
     if ( p->timeout) fprintf(f, "%stimeout : %d,\n", prefix, p->timeout);
     if ( p->stabdelay) fprintf(f, "%sstabDelay : %d,\n", prefix, p->stabdelay);
     if ( p->cmdexedelay) fprintf(f, "%scmdExeDelay : %d,\n", prefix, p->cmdexedelay);
@@ -656,8 +667,6 @@ void avr_display(FILE * f, AVRPART * p, const char * prefix, int verbose)
     fprintf(f, "%srampz: %d,\n", prefix, p->rampz);
     fprintf(f, "%sspmcr: %d,\n", prefix, p->spmcr);
     fprintf(f, "%seecr: %d,\n", prefix, p->eecr);
-    fprintf(f, "%sbase: %d,\n", prefix, p->base);
-    nvm_fprintf(f, "%sbase: %d,\n", prefix, p->base);
     fprintf(f, "%socdrev: %d,\n", prefix, p->ocdrev);
 
     if ( p->op) {
