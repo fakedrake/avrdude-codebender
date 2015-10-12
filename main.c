@@ -76,6 +76,7 @@ static PROGRAMMER * pgm;
 /*
  * global options
  */
+unsigned char dump_json_flag = 0;
 int    verbose;     /* verbose output */
 int    quell_progress; /* un-verebose output */
 int    ovsigck;     /* 1=override sig check, 0=don't */
@@ -106,6 +107,7 @@ static void usage(void)
  "                             is performed in the order specified.\n"
  "  -n                         Do not write anything to the device.\n"
  "  -V                         Do not verify.\n"
+ "  -J                         Dump json.\n"
  "  -u                         Disable safemode, default when running from a script.\n"
  "  -s                         Silent safemode operation, will not ask you if\n"
  "                             fuses should be changed back.\n"
@@ -241,6 +243,12 @@ static void list_avrparts_callback(const char *name, const char *desc,
     struct list_walk_cookie *c = (struct list_walk_cookie *)cookie;
     AVRPART* part = (AVRPART*) (c->obj);
 
+    if (dump_json_flag) {
+        fprintf(c->f, "\"%s%-8s\": ", c->prefix, name);
+        avr_display(c->f, part, "\t\t", dump_json_flag);
+        return;
+    }
+
     /* hide ids starting with '.' */
     if ((verbose < 2) && (name[0] == '.'))
         return;
@@ -265,6 +273,14 @@ static void list_parts(FILE * f, const char *prefix, LISTID avrparts)
     sort_avrparts(avrparts);
 
     walk_avrparts(avrparts, list_avrparts_callback, &c);
+}
+
+static void dump_json()
+{
+    fprintf(stdout, "\n// BEGIN PARTS\n");
+      fprintf(stdout,"module.exports = {\n");
+      list_parts(stdout, "  ", part_list);
+      fprintf(stdout, "}\n");
 }
 
 static void exithook(void)
@@ -306,6 +322,7 @@ int main(int argc, char * argv [])
   struct stat      sb;
   UPDATE         * upd;
   LNODEID        * ln;
+
 
 
   /* options / operating mode variables */
@@ -450,7 +467,7 @@ int main(int argc, char * argv [])
   /*
    * process command line arguments
    */
-  while ((ch = getopt(argc,argv,"?b:B:c:C:DeE:Fi:l:np:OP:qstU:uvVx:yY:")) != -1) {
+  while ((ch = getopt(argc,argv,"J?b:B:c:C:DeE:Fi:l:np:OP:qstU:uvVx:yY:")) != -1) {
 
     switch (ch) {
       case 'b': /* override default programmer baud rate */
@@ -590,6 +607,10 @@ int main(int argc, char * argv [])
         exit(0);
         break;
 
+      case 'J': /* Dump json */
+          dump_json_flag = 1;
+        break;
+
       default:
         fprintf(stderr, "%s: invalid option -%c\n\n", progname, ch);
         usage();
@@ -672,6 +693,11 @@ int main(int argc, char * argv [])
     }
   }
 
+  if (dump_json_flag) {
+      dump_json();
+      exit(0);
+  }
+
   if (lsize(additional_config_files) > 0) {
     LNODEID ln1;
     const char * p = NULL;
@@ -705,7 +731,7 @@ int main(int argc, char * argv [])
   if (partdesc) {
     if (strcmp(partdesc, "?") == 0) {
       fprintf(stderr, "\n// BEGIN PARTS\n");
-      fprintf(stderr,"parts = {\n");
+      fprintf(stderr,"module.exports = {\n");
       list_parts(stderr, "  ", part_list);
       fprintf(stderr, "}\n");
       exit(1);
@@ -1021,7 +1047,7 @@ int main(int argc, char * argv [])
    * against 0xffffff / 0x000000 should ensure that the signature bytes
    * are valid.
    */
-  if(!(p->flags & AVRPART_AVR32)) {
+  if(!(p->flags & AVRPART_AVR32) && 0) {
     int attempt = 0;
     int waittime = 10000;       /* 10 ms */
 
