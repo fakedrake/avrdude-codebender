@@ -607,14 +607,22 @@ void avr_display(FILE * f, AVRPART * p, const char * prefix, int verbose)
     fprintf(f,"{\n");
     fprintf(f, "%sAVRPart: \"%s\",\n", prefix, p->desc);           /* AvrPart */
     if ( p->chip_erase_delay) if ( p->chip_erase_delay) fprintf(f, "%schipEraseDelay : %d,\n", prefix, p->chip_erase_delay);
-    fprintf(f, "%stk500_devcode : 0x%02x,\n", prefix, p->stk500_devcode);
+    fprintf(f, "%sstk500_devcode : 0x%02x,\n", prefix, p->stk500_devcode);
     if ( p->pagel) fprintf(f, "%spagel : 0x%02x,\n", prefix, p->pagel);
     if ( p->bs2) fprintf(f, "%sbs2 : 0x%02x,\n", prefix, p->bs2);
     fprintf(f, "%sresetDisposition : \"%s\",\n", prefix, reset_disp_str(p->reset_disposition));
     fprintf(f, "%sretryPulse : \"%s\",\n", prefix, avr_pin_name(p->retry_pulse));
+    /* Signature */
+    fprintf(f, "%ssignature: [");
+    int js; for (js = 0; js < 3; js++) fprintf(f, "0x%x,", p->signature[js]);
+    fprintf(f, "],\n");
+
+    fprintf(f, "%susbpid: 0x%x,\n", prefix, p->usbpid);
+
     fprintf
         (f, "%sserialProgramMode : %s,\n", prefix, (p->flags & AVRPART_SERIALOK) ? "true" : "false");
     fprintf(f, "%sparallelProgramMode : %s,\n", prefix, (p->flags & AVRPART_PARALLELOK)?"true":"false" );
+    fprintf(f, "%spseudoparallelProgramMode : %s,\n", prefix, (p->flags & AVRPART_PSEUDOPARALLEL)?"true":"false" );
     if ( p->timeout) fprintf(f, "%stimeout : %d,\n", prefix, p->timeout);
     if ( p->stabdelay) fprintf(f, "%sstabDelay : %d,\n", prefix, p->stabdelay);
     if ( p->cmdexedelay) fprintf(f, "%scmdExeDelay : %d,\n", prefix, p->cmdexedelay);
@@ -622,6 +630,36 @@ void avr_display(FILE * f, AVRPART * p, const char * prefix, int verbose)
     if ( p->bytedelay) fprintf(f, "%sbyteDelay : %d,\n", prefix, p->bytedelay);
     if ( p->pollindex) fprintf(f, "%spollIndex : %d,\n", prefix, p->pollindex);
     if ( p->pollvalue) fprintf(f, "%spollValue : 0x%02x,\n", prefix, p->pollvalue);
+    if ( p->predelay) fprintf(f, "%spredelay: %d,\n", prefix, p->predelay);
+    if ( p->pollmethod) fprintf(f, "%spollmethod: %d,\n", prefix, p->pollmethod);
+    if ( p->postdelay) fprintf(f, "%spostdelay: %d,\n", prefix, p->postdelay);
+
+    fprintf(f, "%shventerstabdelay: %d,\n", prefix, p->hventerstabdelay);
+    fprintf(f, "%sprogmodedelay: %d,\n", prefix, p->progmodedelay);
+    fprintf(f, "%slatchcycles: %d,\n", prefix, p->latchcycles);
+    fprintf(f, "%stogglevtg: %d,\n", prefix, p->togglevtg);
+    fprintf(f, "%spoweroffdelay: %d,\n", prefix, p->poweroffdelay);
+    fprintf(f, "%sresetdelayms: %d,\n", prefix, p->resetdelayms);
+    fprintf(f, "%sresetdelayus: %d,\n", prefix, p->resetdelayus);
+    fprintf(f, "%shvleavestabdelay: %d,\n", prefix, p->hvleavestabdelay);
+    fprintf(f, "%sresetdelay: %d,\n", prefix, p->resetdelay);
+    fprintf(f, "%schiperasepulsewidth: %d,\n", prefix, p->chiperasepulsewidth);
+    fprintf(f, "%schiperasepolltimeout: %d,\n", prefix, p->chiperasepolltimeout);
+    fprintf(f, "%schiperasetime: %d,\n", prefix, p->chiperasetime);
+    fprintf(f, "%sprogramfusepulsewidth: %d,\n", prefix, p->programfusepulsewidth);
+    fprintf(f, "%sprogramfusepolltimeout: %d,\n", prefix, p->programfusepolltimeout);
+    fprintf(f, "%sprogramlockpulsewidth: %d,\n", prefix, p->programlockpulsewidth);
+    fprintf(f, "%sprogramlockpolltimeout: %d,\n", prefix, p->programlockpolltimeout);
+    fprintf(f, "%ssynchcycles: %d,\n", prefix, p->synchcycles);
+    fprintf(f, "%shvspcmdexedelay: %d,\n", prefix, p->hvspcmdexedelay);
+    fprintf(f, "%sidr: %d,\n", prefix, p->idr);
+    fprintf(f, "%srampz: %d,\n", prefix, p->rampz);
+    fprintf(f, "%sspmcr: %d,\n", prefix, p->spmcr);
+    fprintf(f, "%seecr: %d,\n", prefix, p->eecr);
+    fprintf(f, "%sbase: %d,\n", prefix, p->base);
+    nvm_fprintf(f, "%sbase: %d,\n", prefix, p->base);
+    fprintf(f, "%socdrev: %d,\n", prefix, p->ocdrev);
+
     if ( p->op) {
         fprintf(f, "%sops : {\n", prefix);
         show_op_array(f, prefix, p->op);
