@@ -76,18 +76,20 @@ int dfu_upload(struct dfu_dev *dfu, void * ptr, int size) {
 
 #define dfu_timeout 200 /* ms */
 
-#define dfu_dnload 1
-#define dfu_upload 2
-#define dfu_getstatus 3
-#define dfu_clrstatus 4
-#define dfu_getstate 5          /* flipv1 only; not used */
-#define dfu_abort 6             /* flipv1 only */
+#define null NULL
+
+#define DFU_DNLOAD 1
+#define DFU_UPLOAD 2
+#define DFU_GETSTATUS 3
+#define DFU_CLRSTATUS 4
+#define DFU_GETSTATE 5          /* flipv1 only; not used */
+#define DFU_ABORT 6             /* flipv1 only */
 
 /* block counter global variable. incremented each time a dfu_dnload command
  * is sent to the device.
  */
 
-static uint16_t windex = 0;
+static uint16_t wIndex = 0;
 
 /* internal function prototypes
  */

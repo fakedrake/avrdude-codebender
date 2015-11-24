@@ -26,6 +26,7 @@
 #include "ac_cfg.h"
 #if defined(HAVE_LIBUSB)
 
+#define USBDEV_BULK_EP_READ_MKII 82
 
 #include <ctype.h>
 #include <stdio.h>
@@ -104,8 +105,8 @@ static int usbdev_open(char * port, union pinfo pinfo, union filedescriptor *fd)
 	}
     }
 
-  if (fd->usb.max_xfer == 0)
-    fd->usb.max_xfer = USBDEV_MAX_XFER_MKII;
+  /* if (fd->usb.max_xfer == 0) */
+  /*   fd->usb.max_xfer = USBDEV_MAX_XFER_MKII; */
 
   usb_init();
 

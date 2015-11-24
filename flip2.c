@@ -32,7 +32,7 @@
 #elif HAVE_INTTYPES_H
 #include <inttypes.h>
 #else
-typedef unsigned long uint32_t;
+// typedef unsigned long uint32_t;
 #endif
 
 #include "flip2.h"

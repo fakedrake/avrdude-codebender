@@ -255,7 +255,7 @@ static void list_avrparts_callback(const char *name, const char *desc,
     if (verbose) {
         fprintf(c->f, "%s%-8s: ",
                 c->prefix, name);
-        avr_display(c->f, part, "\t\t", verbose);
+        // avr_display(c->f, part, "\t\t", verbose);
     } else {
         fprintf(c->f, "%s%-8s = %s\n",
                 c->prefix, name, desc);
@@ -992,7 +992,7 @@ int main(int argc, char * argv [])
   }
 
   if (verbose) {
-    avr_display(stderr, p, progbuf, verbose);
+      // avr_display(stderr, p, progbuf, verbose);
     fprintf(stderr, "\n");
     programmer_display(pgm, progbuf);
   }
@@ -1037,7 +1037,7 @@ int main(int argc, char * argv [])
 
   if (quell_progress < 2) {
     fprintf(stderr,
-            "%s: AVR device initialized and ready to accept instructions\n",
+            "%s: AVR device initialized and ready to accept instructiona\n",
             progname);
   }
 
@@ -1047,13 +1047,16 @@ int main(int argc, char * argv [])
    * against 0xffffff / 0x000000 should ensure that the signature bytes
    * are valid.
    */
-  if(!(p->flags & AVRPART_AVR32) && 0) {
+  printf("init_ok: %d\n", init_ok);
+  if(!(p->flags & AVRPART_AVR32)) {
     int attempt = 0;
     int waittime = 10000;       /* 10 ms */
 
   sig_again:
     usleep(waittime);
+    printf("init_ok: %d\n", init_ok);
     if (init_ok) {
+        printf("Reading signature...\n");
       rc = avr_signature(pgm, p);
       if (rc != 0) {
         fprintf(stderr, "%s: error reading signature data, rc=%d\n",
