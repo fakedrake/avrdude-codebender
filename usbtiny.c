@@ -120,7 +120,7 @@ static int usb_in (PROGRAMMER * pgm,
   // calculate the amout of time we expect the process to take by
   // figuring the bit-clock time and buffer size and adding to the standard USB timeout.
   timeout = USB_TIMEOUT + (buflen * bitclk) / 1000;
-
+  printf("In : [%x %x %x]. Length: %d, Timeout: %d\n", requestid, val, index, buflen, timeout);
   for (i = 0; i < 10; i++) {
     nbytes = usb_control_msg( PDATA(pgm)->usb_handle,
 			      USB_ENDPOINT_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
@@ -160,6 +160,7 @@ static int usb_out (PROGRAMMER * pgm,
   // figuring the bit-clock time and buffer size and adding to the standard USB timeout.
   timeout = USB_TIMEOUT + (buflen * bitclk) / 1000;
 
+  printf("Out: [%x %x %x]. Length: %d, Timeout: %d\n", requestid, val, index, buflen, timeout);
   nbytes = usb_control_msg( PDATA(pgm)->usb_handle,
 			    USB_ENDPOINT_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 			    requestid,
@@ -242,7 +243,7 @@ static	int	usbtiny_open(PROGRAMMER* pgm, char* name)
   } else {
     pid = USBTINY_PRODUCT_DEFAULT;
   }
-  
+
 
   // now we iterate through all the busses and devices
   for ( bus = usb_busses; bus; bus = bus->next ) {
@@ -406,9 +407,10 @@ static int usbtiny_cmd(PROGRAMMER * pgm, const unsigned char *cmd, unsigned char
   check_retries(pgm, "SPI command");
   if (verbose > 1) {
     // print out the data we sent and received
-    fprintf(stderr, "CMD: [%02x %02x %02x %02x] [%02x %02x %02x %02x]\n",
+    fprintf(stderr, "CMD: [%02x %02x %02x %02x] [%02x %02x %02x %02x] SCK: %d\n",
 	    cmd[0], cmd[1], cmd[2], cmd[3],
-	    res[0], res[1], res[2], res[3] );
+	    res[0], res[1], res[2], res[3],
+            8 * PDATA(pgm)->sck_period);
   }
   return ((nbytes == 4) &&      // should have read 4 bytes
 	  res[2] == cmd[1]);              // AVR's do a delayed-echo thing
@@ -597,4 +599,3 @@ void usbtiny_initpgm(PROGRAMMER * pgm)
 #endif /* HAVE_LIBUSB */
 
 const char usbtiny_desc[] = "Driver for \"usbtiny\"-type programmers";
-

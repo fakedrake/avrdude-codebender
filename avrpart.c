@@ -383,7 +383,7 @@ void show_op_array(FILE * f, const char * prefix, OPCODE ** oa)
         if (oa[i]) {
             optr = avr_op_str(i);
             fprintf(f, "%s%s:[\n", prefix, optr);
-            for (j=31; j>=0; j--) {
+            for (j=0; j<32; j++) {
                 fprintf(f, "%s{\n",prefix);
                 fprintf(f, "%s\top: \"%s\",\n", prefix, optr);
                 fprintf(f, "%s\tinstBit: %8d,\n", prefix, j);
